@@ -1,0 +1,28 @@
+meta:
+  name: brand_sd.yml
+
+color:
+  palette:
+    black: "#252424"
+    white: "#D6BFA0"
+    orange: "#FF6F20"
+    pink: "#FF3D7F"
+  background: white
+  foreground: black
+  primary: orange
+  danger: pink
+
+typography:
+  fonts:
+    - family: Open Sans
+      source: google
+    - family: Rubik
+      source: google
+    - family: Fira Code
+      source: google
+
+  base: Open Sans
+  headings:
+    family: Rubik
+    weight: 400
+  monospace: Fira Code

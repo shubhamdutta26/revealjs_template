@@ -1,0 +1,37 @@
+---
+title: "revealjs_template"
+format: 
+  revealjs:
+    height: 1080
+    width: 1920
+brand: brand_light_sd.yml
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+mtcars |>
+  select(cyl, mpg) |>
+ggplot(aes(cyl, mpg)) +
+  geom_point() +
+  sdtools::theme_sd()
+```
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+```{r}
+#| echo: true
+#| eval: false
+mtcars <- mtcars |>
+  select(cyl, mpg)
+
+ggplot(mtcars, aes(cyl, mpg)) +
+  geom_point() +
+  sdtools::theme_sd()
+```
