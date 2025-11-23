@@ -2,14 +2,12 @@
 title: "revealjs_template"
 format: 
   revealjs:
-    height: 1080
-    width: 1920
+    height: 600
+    width: 800
 brand: brand_dark_sd.yml
 ---
 
 ## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
 ```{r}
 #| label: light_theme
@@ -32,8 +30,6 @@ ggplot(aes(cyl, mpg)) +
 ```
 
 ## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
 ```{r}
 #| label: dark_theme

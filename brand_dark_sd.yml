@@ -16,13 +16,13 @@ typography:
   fonts:
     - family: Open Sans
       source: google
-    - family: Rubik
+    - family: Open Sans
       source: google
     - family: Fira Code
       source: google
 
   base: Open Sans
   headings:
-    family: Rubik
+    family: Open Sans
     weight: 400
   monospace: Fira Code
