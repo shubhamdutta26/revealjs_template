@@ -5,3 +5,8 @@
 .httr-oauth
 .DS_Store
 .quarto
+
+/.quarto/
+**/*.quarto_ipynb
+revealjs_template_files/
+revealjs_template.html
