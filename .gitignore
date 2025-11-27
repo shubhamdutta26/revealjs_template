@@ -8,5 +8,7 @@
 
 /.quarto/
 **/*.quarto_ipynb
-revealjs_template_files/
-revealjs_template.html
+revealjs_template_light_files/
+revealjs_template_dark_files/
+revealjs_template_light.html
+revealjs_template_dark.html

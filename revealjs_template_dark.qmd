@@ -10,7 +10,8 @@ brand: brand_dark_sd.yml
 ## Quarto
 
 ```{r}
-#| label: light_theme
+#| label: dark_theme
+
 library(ggplot2)
 library(dplyr)
 mtcars |>
@@ -22,23 +23,21 @@ ggplot(aes(cyl, mpg)) +
   guides(x = guide_axis(minor.ticks = TRUE),
          y = guide_axis(minor.ticks = TRUE)) +
   sdtools::theme_sd() +
-  theme(plot.background  = ggplot2::element_rect(fill = "#D6BFA0", color = NA),
-        panel.background = ggplot2::element_rect(fill = "#f3ece3", color = NA),
-        axis.title = element_text(color ="#252424"),
-        axis.text = element_text(color ="#252424"),
-        axis.ticks = element_line(color ="#252424"))
+  theme(plot.background  = element_rect(fill = "#252424", color = NA),
+        panel.background = element_rect(fill = "#f3ece3", color = NA),
+        axis.title = element_text(color ="#D6BFA0", size = 25),
+        axis.text = element_text(color ="#D6BFA0"),
+        axis.ticks = element_line(color ="#D6BFA0"))
 ```
 
 ## Quarto
 
 ```{r}
-#| label: dark_theme
-mtcars |>
-  select(cyl, mpg) |>
-ggplot(aes(cyl, mpg)) +
-  geom_point() +
-  scale_x_continuous(minor_breaks = scales::breaks_width(0.2)) +
-  scale_y_continuous(minor_breaks = scales::breaks_width(1)) +
+#| label: dark_theme_2
+ggplot(mpg, aes(class)) + 
+  geom_bar(aes(fill = drv)) +
+  #scale_x_continuous(minor_breaks = scales::breaks_width(0.2)) +
+  scale_y_continuous(minor_breaks = scales::breaks_width(2)) +
   guides(x = guide_axis(minor.ticks = TRUE),
          y = guide_axis(minor.ticks = TRUE)) +
   sdtools::theme_sd() +
