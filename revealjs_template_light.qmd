@@ -14,9 +14,10 @@ brand: brand_light_sd.yml
 
 library(ggplot2)
 library(dplyr)
+library(ggtext)
 library(sdtools)
 
-knitr::opts_chunk$set(dev = "ragg_png", dpi = 400)
+knitr::opts_chunk$set(dev = "ragg_png", dpi = 300)
 
 sd_colors <- c(
   green   = "#00a5a6",
@@ -59,7 +60,7 @@ ggplot(
   aes(x = categorical_dose, y = mean_length, fill = supplement)
 ) +
   geom_bar(aes(alpha = dose), stat = "identity", colour = "#FFFFFF", size = 2) +
-  ggtext::geom_textbox(
+  geom_textbox(
     data = plot_data,
     aes(
       label = paste0(
@@ -111,7 +112,7 @@ ggplot(
     text = element_text(colour = sd_colors["light_text"], family = "Cabin"),
     axis.title.y = element_blank(),
     axis.title.x = element_text(size = 20),
-    plot.title = ggtext::element_textbox_simple(
+    plot.title = element_textbox_simple(
       colour = sd_colors["dark_text"],
       size = rel(5),
       face = "bold",
@@ -119,7 +120,7 @@ ggplot(
       lineheight = 1.3,
       margin = margin(0.5, 0, 1, 0, "lines")
     ),
-    plot.subtitle = ggtext::element_textbox_simple(
+    plot.subtitle = element_textbox_simple(
       family = "Cabin",
       size = rel(2),
       lineheight = 1.3,
@@ -153,7 +154,7 @@ ggplot(
   aes(x = categorical_dose, y = mean_length, fill = supplement)
 ) +
   geom_bar(aes(alpha = dose), stat = "identity", colour = "#FFFFFF", size = 2) +
-  ggtext::geom_textbox(
+  geom_textbox(
     data = plot_data,
     aes(
       label = paste0(
@@ -206,7 +207,7 @@ ggplot(
     text = element_text(colour = sd_colors["light_text"], family = "Cabin"),
     axis.title.x = element_blank(),
     axis.title.y = element_text(size = 20),
-    plot.title = ggtext::element_textbox_simple(
+    plot.title = element_textbox_simple(
       colour = sd_colors["dark_text"],
       size = rel(5),
       face = "bold",
@@ -214,7 +215,7 @@ ggplot(
       lineheight = 1.3,
       margin = margin(0.5, 0, 1, 0, "lines")
     ),
-    plot.subtitle = ggtext::element_textbox_simple(
+    plot.subtitle = element_textbox_simple(
       family = "Cabin",
       size = rel(2),
       lineheight = 1.3,
@@ -236,3 +237,144 @@ ggplot(
   )
 ```
 
+##
+
+```{r}
+#| label: line-plot-data
+set.seed(202501)
+
+many_trees <- Orange |>
+  mutate(Tree = as.character(Tree)) |>
+  rbind(tibble(
+    Tree = c(rep("6", 7), rep("7", 7), rep("8", 7)),
+    age = rep(unique(Orange$age), 3),
+    circumference = c(
+      sort(sample(25:250, 7)),
+      sort(sample(25:250, 7)),
+      sort(sample(25:250, 7))
+    )
+  ))
+```
+
+
+```{r}
+#| label: line-plot-1
+theme_piccia <- function() {
+  theme_sd_2(base_size = 12) +
+    # Align the font with the rest of the page
+    theme(
+      text = element_text(family = "Noah", colour = "#12051C"),
+      # Make the title the main thing, and make it wrap to the width of the plot
+      # by putting it inside a textbox
+      plot.title = element_textbox_simple(
+        face = "bold",
+        size = rel(1.5),
+        margin = margin(12, 0, 12, 0, "pt")
+      ),
+      axis.text = element_text(family = "Noah", colour = "#372D40"),
+      axis.title = element_blank(),
+      # Give everything a bit more space to breathe
+      plot.margin = margin(rep(12, 4))
+    )
+}
+
+many_trees |>
+  group_by(Tree) |>
+  mutate(
+    total_growth = max(circumference) - min(circumference),
+    orchard = case_when(
+      Tree %in% c("8", "7", "6", "4") ~ "Greenleaf Citrus Farm",
+      TRUE ~ "Purple Horizon Orchards"
+    ),
+    plantation_year = case_when(
+      Tree %in% c("6", "3") ~ 2021,
+      Tree %in% c("4", "2") ~ 2022,
+      Tree %in% c("7", "5") ~ 2023,
+      TRUE ~ 2024
+    )
+  ) |>
+  arrange(plantation_year) |>
+  mutate(Tree = factor(Tree, levels = unique(Tree))) |>
+  ggplot(aes(x = age, y = circumference, colour = orchard, group = Tree)) +
+  geom_line(linewidth = 1.5, alpha = 0.5, colour = "grey") +
+  geom_line(linewidth = 1.5, aes(alpha = plantation_year)) +
+  scale_alpha_continuous(range = c(0.05, 1), transform = "identity") +
+  labs(
+    title = "Charting the increase in tree circumference by age, by orchard and by year"
+  ) +
+  scale_x_continuous(labels = function(x) paste(x, "days")) +
+  scale_y_continuous(labels = function(x) paste(x, "mm"), limits = c(0, 250)) +
+  scale_colour_manual(
+    values = c(
+      "Greenleaf Citrus Farm" = sd_colors[["green"]],
+      "Purple Horizon Orchards" = sd_colors[["purple"]]
+    )
+  ) +
+  geom_textbox(
+    data = head(many_trees, 1),
+    aes(
+      x = 1000,
+      y = 225,
+      label = paste0(
+        "In <span style='color: ",
+        sd_colors[["green"]],
+        "'>**Greenleaf Citrus Farm**</span> the most recently planted tree (the darkest line) saw the most consitent growth..."
+      )
+    ),
+    family = "Noah",
+    size = 4.5,
+    box.colour = NA,
+    fill = NA,
+    colour = "#372D40",
+    width = unit(14, "lines")
+  ) +
+  geom_textbox(
+    data = head(many_trees, 1),
+    aes(
+      x = 1400,
+      y = 85,
+      label = paste0(
+        "... while in <span style='color: ",
+        sd_colors[["purple"]],
+        "'>**Purple Horizon Orchard**</span> we were back to square one."
+      )
+    ),
+    family = "Noah",
+    size = 4.5,
+    box.colour = NA,
+    fill = NA,
+    colour = "#372D40"
+  ) +
+  theme_piccia() +
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
+##
+
+```{r}
+#| label: line-plot-2
+many_trees |>
+  filter(Tree %in% c(1, 3, 7, 8)) |>
+  ggplot(aes(x = age, y = circumference, colour = Tree)) +
+  geom_line(linewidth = 1, alpha = 0.8) +
+  labs(title = "Charting the increase in tree circumference by age") +
+  scale_x_continuous(labels = function(x) paste(x, "days")) +
+  scale_y_continuous(labels = function(x) paste(x, "mm"), limits = c(0, 300)) +
+  scale_colour_manual(values = unname(sd_colors)) +
+  theme_piccia() +
+  theme(legend.position = "none") +
+  geom_textbox(
+    data = dplyr::filter(many_trees, age == max(age) & Tree %in% c(1, 3, 7, 8)),
+    aes(
+      label = Tree,
+      # Hard-coding these for ease; I recommend a different approach
+      # for a more reproducible labelling process!
+      vjust = case_when(Tree == "8" ~ 0, Tree == "3" ~ 0.8, TRUE ~ 0.5)
+    ),
+    family = "Noah",
+    fontface = "bold",
+    hjust = 0,
+    fill = NA,
+    box.colour = NA
+  )
+```
