@@ -2,29 +2,272 @@
 title: "revealjs_template"
 format: 
   revealjs:
-    height: 600
-    width: 800
+    height: 1080
+    width: 1920
 brand: brand_light_sd.yml
 ---
 
-## Quarto
+##
 
 ```{r}
-#| label: light_theme
+#| label: setup
+
 library(ggplot2)
 library(dplyr)
-mtcars |>
-  select(cyl, mpg) |>
-ggplot(aes(cyl, mpg)) +
-  geom_point() +
-  scale_x_continuous(minor_breaks = scales::breaks_width(0.2)) +
-  scale_y_continuous(minor_breaks = scales::breaks_width(1)) +
-  guides(x = guide_axis(minor.ticks = TRUE),
-         y = guide_axis(minor.ticks = TRUE)) +
-  sdtools::theme_sd() +
-  theme(plot.background  = ggplot2::element_rect(fill = "#D6BFA0", color = NA),
-        panel.background = ggplot2::element_rect(fill = "#f3ece3", color = NA),
-        axis.title = element_text(color ="#252424"),
-        axis.text = element_text(color ="#252424"),
-        axis.ticks = element_line(color ="#252424"))
+library(sdtools)
+
+knitr::opts_chunk$set(dev = "ragg_png", dpi = 400)
+
+sd_colors <- c(
+  "green" = "#00a5a6",
+  "pink" = "#e03d90",
+  light_text = "#323A30",
+  dark_text = "#0C1509"
+)
+```
+
+```{r}
+#| fig-height: 10
+#| fig-width: 15
+plot_data <- ToothGrowth |>
+  mutate(
+    supplement = case_when(
+      supp == "OJ" ~ "green",
+      supp == "VC" ~ "pink",
+      TRUE ~ as.character(supp)
+    )
+  ) |>
+  group_by(supplement, dose) |>
+  summarise(mean_length = mean(len), .groups = "drop") |>
+  mutate(
+    categorical_dose = factor(dose),
+    dose_label = paste0(dose, "mg/day")
+  )
+
+basic_plot <- ggplot(
+  plot_data,
+  aes(x = categorical_dose, y = mean_length, fill = supplement)
+) +
+  geom_bar(aes(alpha = dose), stat = "identity", colour = "#FFFFFF", size = 2) +
+  labs(
+    x = "Dose",
+    y = "Mean length (mm)",
+    title = "In smaller doses, green was associated with greater mean tooth growth,
+compared to equivalent doses of pink",
+    subtitle = "With the highest dose, the mean recorded length was almost identical."
+  ) +
+  scale_fill_manual(values = sd_colors, limits = force) +
+  scale_alpha(range = c(0.4, 1)) +
+  scale_x_discrete(
+    breaks = c("0.5", "1", "2"),
+    labels = function(x) paste0(x, " mg/day")
+  ) +
+  coord_flip() +
+  facet_wrap(supplement ~ ., ncol = 1) +
+  theme_minimal(base_size = 15)
+
+themed_plot <- basic_plot +
+  labs(
+    title = paste0(
+      "In smaller doses, **<span style='color:",
+      sd_colors["green"],
+      "'>green</span>**
+                      was associated with greater mean tooth growth,
+                      compared to equivalent doses of **<span style='color:",
+      sd_colors["pink"],
+      "'>pink</span>**"
+    )
+  ) +
+  theme(
+    legend.position = "none",
+    text = element_text(colour = sd_colors["light_text"], family = "Cabin"),
+    axis.title.y = element_blank(),
+    plot.title = ggtext::element_textbox_simple(
+      colour = sd_colors["dark_text"],
+      size = rel(1.5),
+      face = "bold",
+      family = "Enriqueta",
+      lineheight = 1.3,
+      margin = margin(0.5, 0, 1, 0, "lines")
+    ),
+    plot.subtitle = ggtext::element_textbox_simple(
+      family = "Cabin",
+      size = rel(1.1),
+      lineheight = 1.3,
+      margin = margin(0, 0, 1, 0, "lines")
+    ),
+    strip.text = element_text(
+      family = "Enriqueta",
+      colour = sd_colors["light_text"],
+      size = rel(1.1),
+      face = "bold",
+      margin = margin(2, 0, 0.5, 0, "lines")
+    ),
+    axis.text = element_text(colour = sd_colors["light_text"])
+  )
+
+final_plot <- themed_plot +
+  scale_y_continuous(expand = c(0, 0.5)) +
+  scale_colour_identity() +
+  ggtext::geom_textbox(
+    data = plot_data,
+    aes(
+      label = paste0(
+        "<span style=font-size:12pt>",
+        dose_label,
+        "</span><br>",
+        janitor::round_half_up(mean_length),
+        "mm"
+      ),
+      hjust  = if_else(mean_length < 15, 0, 1),
+      halign = if_else(mean_length < 15, 0, 1),
+      colour = if_else(
+        mean_length > 15,
+        "#FFFFFF",
+        sd_colors[supplement]
+      )
+    ),
+    size = 6,
+    fill = NA,
+    box.colour = NA,
+    family = "Cabin",
+    fontface = "bold"
+  ) +
+  theme(
+    strip.text = element_text(hjust = 0.03),
+    plot.title.position = "plot",
+    plot.margin = margin(rep(15, 4))
+  )
+
+final_plot
+```
+
+##
+
+```{r}
+#| fig-height: 10
+#| fig-width: 15
+library(dplyr)
+library(ggplot2)
+library(ggtext)
+library(janitor)
+
+# 1) Data prep (no repetition later)
+tg_summary <- ToothGrowth |>
+  mutate(
+    supplement = case_when(
+      supp == "OJ" ~ "green",
+      supp == "VC" ~ "pink",
+      TRUE ~ as.character(supp)
+    )
+  ) |>
+  group_by(supplement, dose) |>
+  summarise(mean_length = mean(len), .groups = "drop") |>
+  mutate(categorical_dose = factor(dose))
+
+# 2) Base plot with all shared geoms/scales
+basic_plot <- ggplot(
+  tg_summary,
+  aes(x = categorical_dose, y = mean_length, fill = supplement)
+) +
+  geom_bar(
+    aes(alpha = dose),
+    stat = "identity",
+    colour = "#FFFFFF",
+    size = 2
+  ) +
+  labs(
+    x = "Dose",
+    y = "Mean length (mm)",
+    title = "In smaller doses, green was associated with greater mean tooth growth,
+compared to equivalent doses of pink",
+    subtitle = "With the highest dose, the mean recorded length was almost identical."
+  ) +
+  scale_fill_manual(values = sd_colors, limits = force) +
+  scale_alpha(range = c(0.4, 1)) +
+  scale_x_discrete(
+    breaks = c("0.5", "1", "2"),
+    labels = function(x) paste0(x, " mg/day")
+  ) +
+  facet_wrap(supplement ~ ., ncol = 2) +
+  theme_minimal(base_size = 15)
+
+# 3) Theme + rich title as a reusable object
+title_rich <- paste0(
+  "In smaller doses, **<span style='color:",
+  sd_colors["green"],
+  "'>green</span>** was associated with greater mean tooth growth, ",
+  "compared to equivalent doses of **<span style='color:",
+  sd_colors["pink"],
+  "'>pink</span>**"
+)
+
+theme_custom <- theme(
+  legend.position = "none",
+  text = element_text(colour = sd_colors["light_text"], family = "Cabin"),
+  axis.title.x = element_blank(),
+  plot.title = ggtext::element_textbox_simple(
+    colour = sd_colors["dark_text"],
+    size = rel(1.5),
+    face = "bold",
+    family = "Enriqueta",
+    lineheight = 1.3,
+    margin = margin(0.5, 0, 1, 0, "lines")
+  ),
+  plot.subtitle = ggtext::element_textbox_simple(
+    family = "Cabin",
+    size = rel(1.1),
+    lineheight = 1.3,
+    margin = margin(0, 0, 1, 0, "lines")
+  ),
+  strip.text = element_text(
+    family = "Enriqueta",
+    colour = sd_colors["light_text"],
+    size = rel(1.1),
+    face = "bold",
+    margin = margin(2, 0, 0.5, 0, "lines")
+  ),
+  axis.text = element_text(colour = sd_colors["light_text"])
+)
+
+themed_plot <- basic_plot +
+  labs(title = title_rich) +
+  theme_custom
+
+# 4) Final plot with only incremental changes
+final_plot <- themed_plot +
+  scale_y_continuous(expand = c(0, 0.5)) +
+  scale_colour_identity() +
+  ggtext::geom_textbox(
+    aes(
+      label = paste0(
+        "<span style=font-size:12pt>",
+        dose,
+        "mg/day</span><br>",
+        janitor::round_half_up(mean_length),
+        "mm"
+      ),
+      vjust  = if_else(mean_length < 15, 0, 1),
+      colour = if_else(
+        mean_length > 15,
+        "#FFFFFF",
+        sd_colors[supplement]
+      )
+    ),
+    size = 6,
+    fill = NA,
+    box.colour = NA,
+    family = "Cabin",
+    fontface = "bold",
+    halign = 0.5,   # center text inside box
+    vjust = 0.5     # center box on y position
+  ) +
+  theme(
+    strip.text = element_text(hjust = 0.03),
+    plot.title.position = "plot",
+    plot.margin = margin(rep(15, 4))
+  )
+
+final_plot
+
 ```

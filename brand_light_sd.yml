@@ -4,7 +4,7 @@ meta:
 color:
   palette:
     black: "#252424"
-    white: "#D6BFA0"
+    white: "#FFFFFF"
     orange: "#FF6F20"
     pink: "#FF3D7F"
   background: white
