@@ -145,6 +145,41 @@ ggplot(
 ##
 
 ```{r}
+#| label: horizontal-bar-plot-2
+diamonds |>
+  summarize(prop = n() / nrow(diamonds), .by = cut) |>
+  mutate(cut = forcats::fct_reorder(cut, -prop)) |>
+  ggplot(aes(prop, cut)) +
+  geom_col(aes(fill = as.numeric(cut) == 1)) +
+  geom_text(
+    aes(
+      label = paste0("  ", sprintf("%2.1f", prop * 100), "%  "),
+      color = prop > .05,
+      hjust = prop > .05
+    ),
+    size = 4,
+    fontface = "bold",
+    family = "Spline Sans"
+  ) +
+  scale_x_continuous(guide = "none", name = NULL, expand = c(0, 0)) +
+  scale_y_discrete(guide = "none", expand = expansion(add = c(.8, .6))) +
+  scale_fill_manual(values = c("grey50", "#1D785A"), guide = "none") +
+  scale_color_manual(values = c("black", "white"), guide = "none") +
+  facet_wrap(~cut, ncol = 1, scales = "free_y") +
+  theme(
+    axis.title.y = element_blank(),
+    strip.text = element_text(
+      hjust = 0,
+      margin = margin(1, 0, 1, 0),
+      size = rel(1.1),
+      face = "bold"
+    )
+  )
+```
+
+##
+
+```{r}
 #| label: vertical-bar-plot
 #| fig-height: 10
 #| fig-width: 15
