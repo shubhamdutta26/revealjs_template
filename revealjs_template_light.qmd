@@ -5,18 +5,22 @@ format:
     height: 1080
     width: 1920
 brand: brand_light_sd.yml
+execute: 
+  eval: true
+  echo: false
 ---
 
-##
+## 
 
 ```{r}
 #| label: setup
-
+#| eval: true
 library(ggplot2)
 library(dplyr)
 library(ggtext)
 library(sdtools)
 library(drc)
+library(purrr)
 
 knitr::opts_chunk$set(dev = "ragg_png", dpi = 300)
 
@@ -143,7 +147,7 @@ ggplot(
   )
 ```
 
-##
+## 
 
 ```{r}
 #| label: horizontal-bar-plot-2
@@ -178,7 +182,7 @@ diamonds |>
   )
 ```
 
-##
+## 
 
 ```{r}
 #| label: vertical-bar-plot
@@ -273,7 +277,7 @@ ggplot(
   )
 ```
 
-##
+## 
 
 ```{r}
 #| label: line-plot-data
@@ -291,7 +295,6 @@ many_trees <- Orange |>
     )
   ))
 ```
-
 
 ```{r}
 #| label: line-plot-1
@@ -385,7 +388,7 @@ many_trees |>
   theme(legend.position = "none", legend.title = element_blank())
 ```
 
-##
+## 
 
 ```{r}
 #| label: line-plot-2
@@ -415,45 +418,76 @@ many_trees |>
   )
 ```
 
-##
+## 
 
 ```{r}
 #| label: elisa-data
 #| output: false
+#| eval: true
 
 elisa <- read.csv("data/elisa_tfr_antigen_qc.csv")
 
 summary_qc <- elisa |>
-  group_by(conc_ug) |>
+  group_by(antibody, conc_ug) |>
   summarise(
     mean_od450 = mean(od450),
-    se_od450 = sd(od450) / sqrt(n()),
-    .groups = "drop"
+    se_od450   = sd(od450) / sqrt(n()),
+    .groups    = "drop"
   )
 
-## Fit 4-parameter log-logistic (4PL) model
-fit <- drm(mean_od450 ~ conc_ug, data = summary_qc, fct = LL.4())
+# helper: fit 4PL and extract EC50 + CI + y_ec50 per antibody
+fit_one_ab <- function(df) {
+  fit <- drm(
+    mean_od450 ~ conc_ug,
+    data = df,
+    fct  = LL.4()
+  )
 
-## Extract and rename parameters
-pars <- coef(fit)
-names(pars) <- c("hill_slope", "bottom", "top", "EC50")
+  ed <- ED(fit, 50, interval = "delta")  # EC50 + CI[web:46][web:55]
+  pars <- coef(fit)
+  # LL.4 parameter order is: b (hill), c (bottom), d (top), e (EC50)[web:41][web:44]
+  bottom <- pars["c:(Intercept)"]
+  top    <- pars["d:(Intercept)"]
 
-ec50 <- pars["EC50"]
-ec50_ci <- ED(fit, 50, interval = "delta") # EC50 + CI
+  # response at EC50 (midpoint of the curve)
+  y_ec50 <- bottom + (top - bottom) / 2
 
-## y value at EC50 (half-max between top & bottom)
-y_ec50 <- pars["bottom"] + (pars["top"] - pars["bottom"]) / 2
+  tibble(
+    antibody = df$antibody[1],
+    ec50     = ed[1, "Estimate"],
+    ec50_se  = ed[1, "Std. Error"],
+    ec50_low = ed[1, "Lower"],
+    ec50_up  = ed[1, "Upper"],
+    y_ec50   = y_ec50
+  )
+}
+
+ec50_df <- summary_qc |>
+  group_by(antibody) |>
+  group_modify(~ fit_one_ab(.x)) |>
+  ungroup()
 ```
 
 ```{r}
 #| label: elisa-plot
-ggplot(data = summary_qc, aes(x = conc_ug, y = mean_od450)) +
+#| eval: true
+
+ec50_label <- ec50_df |>
+  mutate(
+    label = paste0(antibody, ": EC~50~ = ", signif(ec50, 3)),
+    x = 0.001,
+    y = c(0.8, 0.9)
+  )
+
+ggplot(
+  data = summary_qc,
+  aes(x = conc_ug, y = mean_od450, color = antibody, shape = antibody)
+) +
   geom_smooth(
     method = drm,
     method.args = list(fct = L.4()),
     se = FALSE,
     linewidth = 1,
-    color = sd_colors[1]
   ) +
   geom_errorbar(
     aes(ymin = mean_od450 - se_od450, ymax = mean_od450 + se_od450),
@@ -461,41 +495,28 @@ ggplot(data = summary_qc, aes(x = conc_ug, y = mean_od450)) +
   ) +
   geom_point(
     size = 5,
-    shape = 21,
     stroke = 1,
-    fill = "#ffffff",
-    color = sd_colors[1]
+    fill = "#ffffff"
   ) +
-  ## EC50 segments from axes to point
-  geom_segment(
-    aes(x = 0, y = y_ec50, xend = ec50, yend = y_ec50),
-    linetype = "dashed",
-    linewidth = 0.8,
-    colour = "grey40",
-    inherit.aes = FALSE
-  ) +
-  geom_segment(
-    aes(x = ec50, y = 0, xend = ec50, yend = y_ec50),
-    linetype = "dashed",
-    linewidth = 0.8,
-    colour = "green",
-    inherit.aes = FALSE
-  ) +
-  ## Optional label near the intersection
-  annotate(
-    "text",
-    x = ec50,
-    y = y_ec50,
-    label = paste0("EC50 = ", signif(ec50, 3)),
-    hjust = -0.1,
-    vjust = -0.5,
-    size = 3
+  geom_textbox(
+    data = ec50_label,
+    aes(x, y, label = label),
+    size = 5,
+    face = "bold",
+    width = 0.3
   ) +
   scale_x_log10(labels = scales::label_log()) +
   scale_y_continuous(limits = c(0, 1), n.breaks = 5, expand = expansion(0)) +
+  scale_shape_manual(values = c(22, 23)) +
+  scale_color_sd_d() +
   labs(
     x = "Transferrin receptor 1 (µg), Log",
     y = "OD~450~, Normalized (Mean ± SE)"
+  ) +
+  theme_sd() +
+  theme(
+    legend.position = "none",
+    axis.title.x = element_markdown(),
+    axis.title.y = element_markdown()
   )
-
 ```
