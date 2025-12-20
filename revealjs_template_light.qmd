@@ -16,6 +16,7 @@ library(ggplot2)
 library(dplyr)
 library(ggtext)
 library(sdtools)
+library(drc)
 
 knitr::opts_chunk$set(dev = "ragg_png", dpi = 300)
 
@@ -412,4 +413,89 @@ many_trees |>
     fill = NA,
     box.colour = NA
   )
+```
+
+##
+
+```{r}
+#| label: elisa-data
+#| output: false
+
+elisa <- read.csv("data/elisa_tfr_antigen_qc.csv")
+
+summary_qc <- elisa |>
+  group_by(conc_ug) |>
+  summarise(
+    mean_od450 = mean(od450),
+    se_od450 = sd(od450) / sqrt(n()),
+    .groups = "drop"
+  )
+
+## Fit 4-parameter log-logistic (4PL) model
+fit <- drm(mean_od450 ~ conc_ug, data = summary_qc, fct = LL.4())
+
+## Extract and rename parameters
+pars <- coef(fit)
+names(pars) <- c("hill_slope", "bottom", "top", "EC50")
+
+ec50 <- pars["EC50"]
+ec50_ci <- ED(fit, 50, interval = "delta") # EC50 + CI
+
+## y value at EC50 (half-max between top & bottom)
+y_ec50 <- pars["bottom"] + (pars["top"] - pars["bottom"]) / 2
+```
+
+```{r}
+#| label: elisa-plot
+ggplot(data = summary_qc, aes(x = conc_ug, y = mean_od450)) +
+  geom_smooth(
+    method = drm,
+    method.args = list(fct = L.4()),
+    se = FALSE,
+    linewidth = 1,
+    color = sd_colors[1]
+  ) +
+  geom_errorbar(
+    aes(ymin = mean_od450 - se_od450, ymax = mean_od450 + se_od450),
+    width = 0.1
+  ) +
+  geom_point(
+    size = 5,
+    shape = 21,
+    stroke = 1,
+    fill = "#ffffff",
+    color = sd_colors[1]
+  ) +
+  ## EC50 segments from axes to point
+  geom_segment(
+    aes(x = 0, y = y_ec50, xend = ec50, yend = y_ec50),
+    linetype = "dashed",
+    linewidth = 0.8,
+    colour = "grey40",
+    inherit.aes = FALSE
+  ) +
+  geom_segment(
+    aes(x = ec50, y = 0, xend = ec50, yend = y_ec50),
+    linetype = "dashed",
+    linewidth = 0.8,
+    colour = "green",
+    inherit.aes = FALSE
+  ) +
+  ## Optional label near the intersection
+  annotate(
+    "text",
+    x = ec50,
+    y = y_ec50,
+    label = paste0("EC50 = ", signif(ec50, 3)),
+    hjust = -0.1,
+    vjust = -0.5,
+    size = 3
+  ) +
+  scale_x_log10(labels = scales::label_log()) +
+  scale_y_continuous(limits = c(0, 1), n.breaks = 5, expand = expansion(0)) +
+  labs(
+    x = "Transferrin receptor 1 (µg), Log",
+    y = "OD~450~, Normalized (Mean ± SE)"
+  )
+
 ```
