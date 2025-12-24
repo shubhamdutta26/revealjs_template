@@ -1,0 +1,128 @@
+/*-- scss:defaults --*/
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400');
+
+$font-family-sans-serif: 'Open Sans', sans-serif !default;
+$font-family-monospace: 'Source Code Pro', monospace !default;
+$presentation-heading-font: "Open Sans", sans-serif !default;
+$presentation-title-slide-text-align: left;
+$presentation-heading-font-weight: 300;
+$code-block-font-size: 0.90em;
+
+// colors
+$body-bg:      #FFFFFF;
+$body-color:   #404041;
+$code-color:   #9a4665;
+$selection-bg: #93bdbf;
+$link-color:   #3D6E74;
+
+// dark colors
+$dark-bg-text-color:	#F0F0F0;
+$dark-bg-code-color:	#cca2b2;
+$dark-bg-link-color:	#93bdbf;
+
+/*-- scss:rules --*/
+
+/*-- scss:rules --*/
+
+.reveal .custom-title {
+  position: absolute;
+  font-size: 2.8em;
+  font-weight: bold;
+  text-align: left;
+  left: 20px;
+  top: -150px;
+  line-height: 1.2em;
+}
+
+.reveal .custom-author {
+  position: absolute;
+  font-size: 1.5em;
+  text-align: left;
+  left: 20px;
+  top: 300px;
+}
+
+.reveal .custom-url-nhprr {
+  position: absolute;
+  font-size: 0.8em;
+  text-align: left;
+  left: 20px;
+  top: 390px;
+}
+
+.reveal .custom-url-mbl {
+  position: absolute;
+  font-size: 0.8em;
+  text-align: left;
+  left: 20px;
+  top: 450px;
+}
+
+.reveal .title-date {
+  position: absolute;
+  font-size: 0.8em;
+  text-align: left;
+  left: 20px;
+  top: 510px;
+}
+
+.reveal .custom-aside {
+  position: absolute;
+  text-align: left;
+  font-size: 0.7em;
+  left: 20px;
+  top: 650px;
+}
+
+.reveal .slide .custom-slide-aside {
+  position: absolute;
+  text-align: left;
+  font-size: 0.2em;
+  left: 20px;
+  top: 650px;
+}
+
+details>summary {
+  font-size: 0.75em;
+}
+
+
+.medium {
+  font-size: 0.85em;
+}
+
+.small {
+  font-size: 0.75em;
+}
+
+.reveal .slide .in-out {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  padding-left: 1em;
+  background: #E8E8E8;
+  font-family: $font-family-monospace;
+  font-size: 0.6em;
+}
+
+.reveal .slide .goal {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  padding-left: 1em;
+  background: #ccddeb;
+}
+
+.reveal iframe {
+  height: 900px;
+  width: 900px;
+}
+
+.bold {
+  font-weight: bold;
+}

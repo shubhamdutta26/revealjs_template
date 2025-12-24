@@ -4,12 +4,12 @@ meta:
 color:
   palette:
     black: "#252424"
-    white: "#FFFFFF"
-    orange: "#FF6F20"
+    white: "#EDEDED"
+    gray: "#323A30"
     pink: "#FF3D7F"
   background: white
   foreground: black
-  primary: orange
+  primary: gray
   danger: pink
 
 typography:

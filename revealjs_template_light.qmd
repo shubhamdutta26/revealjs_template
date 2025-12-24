@@ -1,14 +1,38 @@
 ---
-title: "revealjs_template"
 format: 
   revealjs:
+    theme: style/style.scss
     height: 1080
     width: 1920
-brand: brand_light_sd.yml
+# brand: brand_light_sd.yml
 execute: 
   eval: true
   echo: false
 ---
+
+#  {background-image="img/1IGT_color.png" background-opacity="0.2"}
+
+[Developing a duobody for<br>treating Alzheimer's disease<br>in squirrel monkeys]{.custom-title}
+
+[Shubham Dutta, Ph.D.]{.custom-author}
+
+<br>
+
+[The Non Human Primate Reagent Resource]{.custom-url-nhprr}
+
+<br>
+
+[Massbiologics of UMMS]{.custom-url-mbl}
+
+[`r format(Sys.Date(), format="%B %d, %Y")`]{.title-date}
+
+[Background image: [Structure of murine immunoglobulin (1IGT)](http://doi.org/10.2210/pdb1IGT/pdb)]{.custom-aside}
+
+::: notes
+`r if (format(Sys.time(), "%H") < 12) {   "Good morning" } else {   "Good afternoon" }` everyone. Thank you for the opportunity to present my work here. My name is Shubham Dutta, and I’m excited to share with you a unique and ongoing project where I have developed a duobody for treating Alzheimer’s disease in squirrel monkeys.
+:::
+
+## Next slide
 
 ## 
 
@@ -481,7 +505,7 @@ ec50_label <- ec50_df |>
 
 ggplot(
   data = summary_qc,
-  aes(x = conc_ug, y = mean_od450, color = antibody, shape = antibody)
+  aes(x = conc_ug, y = mean_od450, color = antibody, shape = antibody, fill = antibody)
 ) +
   geom_smooth(
     method = drm,
@@ -495,25 +519,27 @@ ggplot(
   ) +
   geom_point(
     size = 5,
-    stroke = 1,
-    fill = "#ffffff"
+    stroke = 1
   ) +
   geom_textbox(
     data = ec50_label,
     aes(x, y, label = label),
     size = 5,
     face = "bold",
-    width = 0.3
+    width = 0.3,
+    fill = NA,
+    box.color = NA
   ) +
   scale_x_log10(labels = scales::label_log()) +
   scale_y_continuous(limits = c(0, 1), n.breaks = 5, expand = expansion(0)) +
   scale_shape_manual(values = c(22, 23)) +
+  scale_fill_manual(values = prismatic::clr_lighten(unname(sd_colors), 0.7)) +
   scale_color_sd_d() +
   labs(
     x = "Transferrin receptor 1 (µg), Log",
     y = "OD~450~, Normalized (Mean ± SE)"
   ) +
-  theme_sd() +
+  theme_sd_2() +
   theme(
     legend.position = "none",
     axis.title.x = element_markdown(),
