@@ -9,7 +9,7 @@ knitr:
     dev: ragg_png
     dpi: 300
 execute: 
-  eval: false
+  eval: true
   echo: false
 ---
 
@@ -155,14 +155,13 @@ ggplot(
   scale_y_continuous(expand = expansion(0), limits = c(0, 30)) +
   coord_flip() +
   facet_wrap(supplement ~ ., ncol = 1) +
-  theme_sd_2(base_size = 15) +
+  theme_bw(base_size = 12, paper = "#EDEDED") +
   theme(
     legend.position = "none",
     text = element_text(colour = sd_colors["light_text"], family = "Open Sans"),
     axis.title.y = element_blank(),
     axis.title.x = element_text(size = 20),
     plot.title = element_textbox_simple(
-      colour = sd_colors["dark_text"],
       size = rel(5),
       face = "bold",
       family = "Open Sans",
@@ -177,14 +176,13 @@ ggplot(
     ),
     strip.text = element_text(
       family = "Open Sans",
-      colour = sd_colors["light_text"],
       size = rel(2),
       face = "bold",
       margin = margin(2, 0, 1, 0, "lines"),
       hjust = 0
     ),
     strip.background = element_rect(fill = NA, color = NA),
-    axis.text = element_text(size = 15, colour = sd_colors["light_text"]),
+    axis.text = element_text(size = 15),
     plot.title.position = "plot",
     panel.spacing = unit(2, "lines"),
     plot.margin = margin(1, 2, 1, 1, "lines")
@@ -203,7 +201,7 @@ ggplot(
   plot_data,
   aes(x = categorical_dose, y = mean_length, fill = supplement)
 ) +
-  geom_bar(aes(alpha = dose), stat = "identity", colour = "#FFFFFF", size = 2) +
+  geom_bar(aes(alpha = dose), stat = "identity", colour = NA, size = 2) +
   geom_textbox(
     data = plot_data,
     aes(
@@ -250,16 +248,13 @@ ggplot(
   scale_y_continuous(expand = expansion(0), limits = c(0, 30)) +
   coord_flip() +
   facet_wrap(supplement ~ ., ncol = 1) +
-  theme_sd_2(base_size = 15) +
+  theme_bw(base_size = 12, paper = "#272822", ink = "#FFFFFF") +
   theme(
     legend.position = "none",
-    text = element_text(colour = sd_colors["light_text"], family = "Open Sans"),
+    text = element_text(family = "Open Sans"),
     axis.title.y = element_blank(),
     axis.title.x = element_text(size = 20),
-    plot.background = element_rect(fill = 'lightblue', color = 'purple'),
-    panel.background = element_rect(fill = 'lightblue', color = 'purple'),
     plot.title = element_textbox_simple(
-      colour = sd_colors["dark_text"],
       size = rel(5),
       face = "bold",
       family = "Open Sans",
@@ -274,14 +269,13 @@ ggplot(
     ),
     strip.text = element_text(
       family = "Open Sans",
-      colour = sd_colors["light_text"],
       size = rel(2),
       face = "bold",
       margin = margin(2, 0, 1, 0, "lines"),
       hjust = 0
     ),
     strip.background = element_rect(fill = NA, color = NA),
-    axis.text = element_text(size = 15, colour = sd_colors["light_text"]),
+    axis.text = element_text(size = 15),
     plot.title.position = "plot",
     panel.spacing = unit(2, "lines"),
     plot.margin = margin(1, 2, 1, 1, "lines")
