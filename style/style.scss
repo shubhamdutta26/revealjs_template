@@ -11,11 +11,11 @@ $presentation-heading-font-weight: 300;
 $code-block-font-size: 0.90em;
 
 // colors
-$body-bg:      #EDEDED;
-$body-color:   #404041;
+$body-bg:      #F2F0E3;
+$body-color:   #2E2E2E;
 $code-color:   #9a4665;
 $selection-bg: #93bdbf;
-$link-color:   #3D6E74;
+$link-color:   #F76E53;
 
 // dark colors
 $dark-bg-text-color:	#F0F0F0;
@@ -87,9 +87,9 @@ $dark-bg-link-color:	#93bdbf;
 }
 
 .highlight-last  {
-  color: grey;
+  color: #2E2E2E;
   .current-fragment {
-    color: #404041;
+    color: #2E2E2E;
     font-weight: bold;
   }
 }
@@ -138,10 +138,10 @@ details>summary {
 
 /*-- THEMING --*/
 
-.inverse {
-  color: #d6d6d6;
+.dark {
+  color: #D1CFC0;
   h1, h2, h3 {
-    color: #f3f3f3;
+    color: #D1CFC0;
   }
 
   a {
@@ -153,13 +153,13 @@ details>summary {
   }
 
   .slide-background-content {
-    background-color: #272822;
+    background-color: #1F1F1F;
   }
 
   .highlight-last  {
-  color: #EDEDED;
+  color: #D1CFC0;
   .current-fragment {
-    color: #FFFFFF;
+    color: #D1CFC0;
     font-weight: bold;
   }
 }

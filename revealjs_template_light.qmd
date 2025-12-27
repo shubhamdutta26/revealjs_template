@@ -40,6 +40,7 @@ execute:
 ```{r}
 #| label: setup
 #| eval: true
+#| echo: true
 
 library(ggplot2)
 library(dplyr)
@@ -54,13 +55,119 @@ sd_colors <- c(
   orange  = "#fc6538",
   purple  = "#6a3ecb",
   blue    = "#0058dc",
-  brown   = "#a75237",
-  light_text = "#323a30",
-  dark_text  = "#0c1509"
+  brown   = "#a75237"
 )
+
+custom_theme <- function(type = "light") {
+  base <- if (type == "light") {
+    theme_bw(base_size = 12, paper = "#F2F0E3", ink = "#2E2E2E")
+  } else {
+    theme_bw(base_size = 12, paper = "#1F1F1F", ink = "#D1CFC0")
+  }
+
+  text_color <- if_else (type == "light", "#2E2E2E", "#D1CFC0")
+
+  base +
+    theme(
+      legend.position = "none",
+      text = element_text(colour = text_color, family = "Open Sans"),
+      axis.title.y = element_markdown(size = 20),
+      axis.title.x = element_markdown(size = 20),
+      plot.title = element_textbox_simple(
+        size = rel(5),
+        face = "bold",
+        family = "Open Sans",
+        lineheight = 1.3,
+        margin = margin(0.5, 0, 1, 0, "lines")
+      ),
+      plot.subtitle = element_textbox_simple(
+        family = "Open Sans",
+        size = rel(2),
+        lineheight = 1.3,
+        margin = margin(0, 0, 1, 0, "lines")
+      ),
+      strip.text = element_text(
+        family = "Open Sans",
+        size = rel(2),
+        face = "bold",
+        margin = margin(2, 0, 1, 0, "lines"),
+        hjust = 0
+      ),
+      strip.background = element_rect(fill = NA, color = NA),
+      axis.text = element_text(size = 15),
+      plot.title.position = "plot",
+      panel.spacing = unit(2, "lines"),
+      plot.margin = margin(1, 2, 1, 1, "lines")
+    )
+}
 ```
 
-## Welcome {.inverse}
+## Welcome {.dark}
+
+```{r}
+#| label: setup-2
+#| eval: false
+#| echo: true
+
+library(ggplot2)
+library(dplyr)
+library(ggtext)
+library(sdtools)
+library(drc)
+library(purrr)
+
+sd_colors <- c(
+  green   = "#00a5a6",
+  pink    = "#e03d90",
+  orange  = "#fc6538",
+  purple  = "#6a3ecb",
+  blue    = "#0058dc",
+  brown   = "#a75237"
+)
+
+custom_theme <- function(type = "light") {
+  base <- if (type == "light") {
+    theme_bw(base_size = 12, paper = "#F2F0E3", ink = "#2E2E2E")
+  } else {
+    theme_bw(base_size = 12, paper = "#1F1F1F", ink = "#D1CFC0")
+  }
+
+  text_color <- if_else (type == "light", "#2E2E2E", "#D1CFC0")
+
+  base +
+    theme(
+      legend.position = "none",
+      text = element_text(colour = text_color, family = "Open Sans"),
+      axis.title.y = element_markdown(size = 20),
+      axis.title.x = element_markdown(size = 20),
+      plot.title = element_textbox_simple(
+        size = rel(5),
+        face = "bold",
+        family = "Open Sans",
+        lineheight = 1.3,
+        margin = margin(0.5, 0, 1, 0, "lines")
+      ),
+      plot.subtitle = element_textbox_simple(
+        family = "Open Sans",
+        size = rel(2),
+        lineheight = 1.3,
+        margin = margin(0, 0, 1, 0, "lines")
+      ),
+      strip.text = element_text(
+        family = "Open Sans",
+        size = rel(2),
+        face = "bold",
+        margin = margin(2, 0, 1, 0, "lines"),
+        hjust = 0
+      ),
+      strip.background = element_rect(fill = NA, color = NA),
+      axis.text = element_text(size = 15),
+      plot.title.position = "plot",
+      panel.spacing = unit(2, "lines"),
+      plot.margin = margin(1, 2, 1, 1, "lines")
+    )
+}
+```
 
 ## Agenda
 
@@ -69,7 +176,7 @@ sd_colors <- c(
 - thing 2
 :::
 
-## Agenda {.inverse}
+## Agenda {.dark}
 
 ::: {.incremental .highlight-last}
 - thing 1
@@ -102,7 +209,6 @@ plot_data <- ToothGrowth |>
 #| label: horizontal-bar-plot
 #| fig-height: 10
 #| fig-width: 15
-#| eval: true
 
 ggplot(
   plot_data,
@@ -155,53 +261,21 @@ ggplot(
   scale_y_continuous(expand = expansion(0), limits = c(0, 30)) +
   coord_flip() +
   facet_wrap(supplement ~ ., ncol = 1) +
-  theme_bw(base_size = 12, paper = "#EDEDED") +
-  theme(
-    legend.position = "none",
-    text = element_text(colour = sd_colors["light_text"], family = "Open Sans"),
-    axis.title.y = element_blank(),
-    axis.title.x = element_text(size = 20),
-    plot.title = element_textbox_simple(
-      size = rel(5),
-      face = "bold",
-      family = "Open Sans",
-      lineheight = 1.3,
-      margin = margin(0.5, 0, 1, 0, "lines")
-    ),
-    plot.subtitle = element_textbox_simple(
-      family = "Open Sans",
-      size = rel(2),
-      lineheight = 1.3,
-      margin = margin(0, 0, 1, 0, "lines")
-    ),
-    strip.text = element_text(
-      family = "Open Sans",
-      size = rel(2),
-      face = "bold",
-      margin = margin(2, 0, 1, 0, "lines"),
-      hjust = 0
-    ),
-    strip.background = element_rect(fill = NA, color = NA),
-    axis.text = element_text(size = 15),
-    plot.title.position = "plot",
-    panel.spacing = unit(2, "lines"),
-    plot.margin = margin(1, 2, 1, 1, "lines")
-  )
+  custom_theme("light")
 ```
 
-##  {.inverse}
+##  {.dark}
 
 ```{r}
-#| label: horizontal-bar-plot-2
+#| label: horizontal-bar-plot-dark
 #| fig-height: 10
 #| fig-width: 15
-#| eval: true
 
 ggplot(
   plot_data,
   aes(x = categorical_dose, y = mean_length, fill = supplement)
 ) +
-  geom_bar(aes(alpha = dose), stat = "identity", colour = NA, size = 2) +
+  geom_bar(aes(alpha = dose), stat = "identity", colour = "#FFFFFF", size = 2) +
   geom_textbox(
     data = plot_data,
     aes(
@@ -248,44 +322,15 @@ ggplot(
   scale_y_continuous(expand = expansion(0), limits = c(0, 30)) +
   coord_flip() +
   facet_wrap(supplement ~ ., ncol = 1) +
-  theme_bw(base_size = 12, paper = "#272822", ink = "#FFFFFF") +
-  theme(
-    legend.position = "none",
-    text = element_text(family = "Open Sans"),
-    axis.title.y = element_blank(),
-    axis.title.x = element_text(size = 20),
-    plot.title = element_textbox_simple(
-      size = rel(5),
-      face = "bold",
-      family = "Open Sans",
-      lineheight = 1.3,
-      margin = margin(0.5, 0, 1, 0, "lines")
-    ),
-    plot.subtitle = element_textbox_simple(
-      family = "Open Sans",
-      size = rel(2),
-      lineheight = 1.3,
-      margin = margin(0, 0, 1, 0, "lines")
-    ),
-    strip.text = element_text(
-      family = "Open Sans",
-      size = rel(2),
-      face = "bold",
-      margin = margin(2, 0, 1, 0, "lines"),
-      hjust = 0
-    ),
-    strip.background = element_rect(fill = NA, color = NA),
-    axis.text = element_text(size = 15),
-    plot.title.position = "plot",
-    panel.spacing = unit(2, "lines"),
-    plot.margin = margin(1, 2, 1, 1, "lines")
-  )
+  custom_theme("dark")
 ```
 
-## 
+## This is a horizontal bar plot
 
 ```{r}
-#| label: horizontal-bar-plot-3
+#| label: horizontal-bar-plot-2
+#| eval: true
+
 diamonds |>
   summarize(prop = n() / nrow(diamonds), .by = cut) |>
   mutate(cut = forcats::fct_reorder(cut, -prop)) |>
@@ -306,6 +351,7 @@ diamonds |>
   scale_fill_manual(values = c("grey50", "#1D785A"), guide = "none") +
   scale_color_manual(values = c("black", "white"), guide = "none") +
   facet_wrap(~cut, ncol = 1, scales = "free_y") +
+  custom_theme("light") +
   theme(
     axis.title.y = element_blank(),
     strip.text = element_text(
@@ -317,7 +363,45 @@ diamonds |>
   )
 ```
 
-## 
+## This is a horizontal bar plot {.dark}
+
+```{r}
+#| label: horizontal-bar-plot-2-dark
+#| eval: true
+
+diamonds |>
+  summarize(prop = n() / nrow(diamonds), .by = cut) |>
+  mutate(cut = forcats::fct_reorder(cut, -prop)) |>
+  ggplot(aes(prop, cut)) +
+  geom_col(aes(fill = as.numeric(cut) == 1)) +
+  geom_text(
+    aes(
+      label = paste0("  ", sprintf("%2.1f", prop * 100), "%  "),
+      color = prop > .05,
+      hjust = prop > .05
+    ),
+    size = 4,
+    fontface = "bold",
+    family = "Spline Sans"
+  ) +
+  scale_x_continuous(guide = "none", name = NULL, expand = c(0, 0)) +
+  scale_y_discrete(guide = "none", expand = expansion(add = c(.8, .6))) +
+  scale_fill_manual(values = c("grey50", "#1D785A"), guide = "none") +
+  scale_color_manual(values = c("black", "white"), guide = "none") +
+  facet_wrap(~cut, ncol = 1, scales = "free_y") +
+  custom_theme("dark") +
+  theme(
+    axis.title.y = element_blank(),
+    strip.text = element_text(
+      hjust = 0,
+      margin = margin(1, 0, 1, 0),
+      size = rel(1.1),
+      face = "bold"
+    )
+  )
+```
+
+## This is **<span style='color:#00a5a6'>green</span>** and that is **<span style='color:#e03d90'>pink</span>**
 
 ```{r}
 #| label: vertical-bar-plot
@@ -357,15 +441,7 @@ ggplot(
   ) +
   labs(
     x = "Dose",
-    y = "Mean length (mm)",
-    title = paste0(
-      "This is **<span style='color:",
-      sd_colors["green"],
-      "'>green</span>** and that is **<span style='color:",
-      sd_colors["pink"],
-      "'>pink</span>**"
-    ),
-    subtitle = "With the highest dose, the mean recorded length was almost identical."
+    y = "Mean length (mm)"
   ) +
   scale_fill_manual(values = sd_colors) +
   scale_alpha(range = c(0.4, 1)) +
@@ -376,40 +452,61 @@ ggplot(
   ) +
   scale_y_continuous(expand = expansion(0), limits = c(0, 30)) +
   facet_wrap(supplement ~ ., nrow = 1) +
-  theme_sd_2(base_size = 15) +
-  theme(
-    legend.position = "none",
-    text = element_text(colour = sd_colors["light_text"], family = "Cabin"),
-    axis.title.x = element_blank(),
-    axis.title.y = element_text(size = 20),
-    plot.title = element_textbox_simple(
-      colour = sd_colors["dark_text"],
-      size = rel(5),
-      face = "bold",
-      family = "Enriqueta",
-      lineheight = 1.3,
-      margin = margin(0.5, 0, 1, 0, "lines")
+  custom_theme("light")
+```
+
+## This is **<span style='color:#00a5a6'>green</span>** and that is **<span style='color:#e03d90'>pink</span>** {.dark}
+
+```{r}
+#| label: vertical-bar-plot-dark
+#| fig-height: 10
+#| fig-width: 15
+
+ggplot(
+  plot_data,
+  aes(x = categorical_dose, y = mean_length, fill = supplement)
+) +
+  geom_bar(aes(alpha = dose), stat = "identity", colour = "#FFFFFF", size = 2) +
+  geom_textbox(
+    data = plot_data,
+    aes(
+      label = paste0(
+        "<span style=font-size:12pt>",
+        dose_label,
+        "</span><br>",
+        janitor::round_half_up(mean_length),
+        "mm"
+      ),
+      vjust = if_else(mean_length < 15, 0, 1),# placing text in the top (0), middle (0.5), bottom (1) top of the bar
+      valign = 1, # no change for this plot
+      hjust = 0.5, # placing text in the left (0), center (0.5), right (1) of the bar
+      halign = 0.5, # align text in the left (0), center (0.5), right (1) top of the bar
+      colour = if_else(
+        mean_length > 15,
+        "#FFFFFF",
+        sd_colors[supplement]
+      )
     ),
-    plot.subtitle = element_textbox_simple(
-      family = "Cabin",
-      size = rel(2),
-      lineheight = 1.3,
-      margin = margin(0, 0, 1, 0, "lines")
-    ),
-    strip.text = element_text(
-      family = "Enriqueta",
-      colour = sd_colors["light_text"],
-      size = rel(2),
-      face = "bold",
-      margin = margin(2, 0, 1, 0, "lines"),
-      hjust = 0
-    ),
-    strip.background = element_rect(fill = NA, color = NA),
-    axis.text = element_text(size = 15, colour = sd_colors["light_text"]),
-    plot.title.position = "plot",
-    panel.spacing = unit(2, "lines"),
-    plot.margin = margin(1, 2, 1, 1, "lines")
-  )
+    size = 6,
+    fill = NA,
+    box.colour = NA,
+    family = "Cabin",
+    fontface = "bold"
+  ) +
+  labs(
+    x = "Dose",
+    y = "Mean length (mm)"
+  ) +
+  scale_fill_manual(values = sd_colors) +
+  scale_alpha(range = c(0.4, 1)) +
+  scale_colour_identity() +
+  scale_x_discrete(
+    breaks = c("0.5", "1", "2"),
+    labels = function(x) paste0(x, " mg/day")
+  ) +
+  scale_y_continuous(expand = expansion(0), limits = c(0, 30)) +
+  facet_wrap(supplement ~ ., nrow = 1) +
+  custom_theme("dark")
 ```
 
 ## 
@@ -603,6 +700,58 @@ ec50_df <- summary_qc |>
 ```
 
 ```{r}
+#| label: elisa-plot-dark
+
+ec50_label <- ec50_df |>
+  mutate(
+    label = paste0(antibody, ": EC~50~ = ", signif(ec50, 3)),
+    x = 0.001,
+    y = c(0.8, 0.9)
+  )
+
+ggplot(
+  data = summary_qc,
+  aes(x = conc_ug, y = mean_od450, color = antibody, shape = antibody, fill = antibody)
+) +
+  geom_smooth(
+    method = drm,
+    method.args = list(fct = L.4()),
+    se = FALSE,
+    linewidth = 1,
+  ) +
+  geom_errorbar(
+    aes(ymin = mean_od450 - se_od450, ymax = mean_od450 + se_od450),
+    width = 0.1
+  ) +
+  geom_point(
+    size = 5,
+    stroke = 1
+  ) +
+  geom_textbox(
+    data = ec50_label,
+    aes(x, y, label = label),
+    size = 5,
+    face = "bold",
+    width = 0.35,
+    fill = NA,
+    box.color = NA
+  ) +
+  scale_x_log10(labels = scales::label_log()) +
+  scale_y_continuous(limits = c(0, 1), n.breaks = 5, expand = expansion(0)) +
+  scale_shape_manual(values = c(22, 23)) +
+  scale_fill_manual(values = prismatic::clr_lighten(unname(sd_colors), 0.7)) +
+  scale_color_sd_d() +
+  labs(
+    x = "Transferrin receptor 1 (µg), Log",
+    y = "OD~450~, Normalized (Mean ± SE)"
+  ) +
+  custom_theme("light") +
+  theme(legend.position = "none")
+```
+
+## {.dark}
+
+```{r}
 #| label: elisa-plot
 
 ec50_label <- ec50_df |>
@@ -635,7 +784,7 @@ ggplot(
     aes(x, y, label = label),
     size = 5,
     face = "bold",
-    width = 0.3,
+    width = 0.35,
     fill = NA,
     box.color = NA
   ) +
@@ -648,10 +797,6 @@ ggplot(
     x = "Transferrin receptor 1 (µg), Log",
     y = "OD~450~, Normalized (Mean ± SE)"
   ) +
-  theme_sd_2() +
-  theme(
-    legend.position = "none",
-    axis.title.x = element_markdown(),
-    axis.title.y = element_markdown()
-  )
+  custom_theme("dark") +
+  theme(legend.position = "none")
 ```
